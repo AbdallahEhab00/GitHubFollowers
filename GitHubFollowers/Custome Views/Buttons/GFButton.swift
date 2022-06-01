@@ -33,5 +33,10 @@ class GFButton: UIButton {
         
     }
     
+    func set(backgroungColor:UIColor ,title:String){
+        self.backgroundColor = backgroungColor
+        self.setTitle(title, for: .normal)
+    }
+    
 
 }

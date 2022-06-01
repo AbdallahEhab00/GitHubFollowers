@@ -33,6 +33,7 @@ class GFUserInfoHeaderVC: UIViewController {
         configureUI()
     }
     
+    
     func configureUI(){
         avatarImageView.getAvatarImage(for: user.avatarUrl)
         usernameLabel.text          = user.login
@@ -46,6 +47,7 @@ class GFUserInfoHeaderVC: UIViewController {
         
     }
     
+    
     func addSubViews(){
         view.addSubview(avatarImageView)
         view.addSubview(usernameLabel)
@@ -54,6 +56,7 @@ class GFUserInfoHeaderVC: UIViewController {
         view.addSubview(locationLabel)
         view.addSubview(bioLabel)
     }
+    
     
     func layoutUI(){
         
