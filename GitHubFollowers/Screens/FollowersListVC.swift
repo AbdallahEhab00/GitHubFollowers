@@ -40,6 +40,9 @@ class FollowersListVC: UIViewController {
     private func configureViewController(){
         view.backgroundColor = .systemBackground
         navigationController?.navigationBar.prefersLargeTitles = true
+        
+        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addButtonTaped))
+        navigationItem.rightBarButtonItem = addButton
     }
     
     func configureCollectionView(){
@@ -56,7 +59,7 @@ class FollowersListVC: UIViewController {
         let searchController                    = UISearchController()
         searchController.searchResultsUpdater   = self
         searchController.searchBar.delegate     = self
-        searchController.searchBar.placeholder  = "search fo a username"
+        searchController.searchBar.placeholder  = "search for a username"
         navigationItem.searchController         = searchController
     }
    
@@ -70,13 +73,12 @@ class FollowersListVC: UIViewController {
             case .success(let followers):
                 if followers.count < 100 { self.hasMoreFollowers = false }
                 self.followers.append(contentsOf: followers)
-                print(followers.count)
-                if followers.isEmpty{
+                if self.followers.isEmpty{
                     let message = "This user has No followers yet , Go and follow him 😁"
                     DispatchQueue.main.async {  self.showEmptyState(for: message, in: self.view) }
                     return
                 }
-                self.updateData(follower: followers)
+                self.updateData(follower: self.followers)
             case .failure(let error):
                 self.presentGFAlertOnMainThread(title: "Operation Faild", message:error.rawValue, buttonTitle: "Ok")
                 
@@ -100,6 +102,10 @@ class FollowersListVC: UIViewController {
         snapshot.appendItems(follower)
         DispatchQueue.main.async { self.dataSource.apply(snapshot, animatingDifferences: true) }
     }
+    
+    @objc func addButtonTaped(){
+        print("taped")
+    }
 
 }
 
@@ -122,6 +128,7 @@ extension FollowersListVC : UICollectionViewDelegate {
         let followers       = activeArray[indexPath.item]
         let UserInfoVC      = UserInfoVC()
         UserInfoVC.username = followers.login
+        UserInfoVC.delegate = self
         let navController  = UINavigationController(rootViewController: UserInfoVC)
         present(navController, animated: true)
     }
@@ -130,10 +137,9 @@ extension FollowersListVC : UICollectionViewDelegate {
 
 extension FollowersListVC: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {
-        isSearching = true
         guard let filter = searchController.searchBar.text , !filter.isEmpty else {return}
-        
-        filterdFollowers = followers.filter { $0.login.uppercased().contains(filter.uppercased())}
+        isSearching = true
+        filterdFollowers = followers.filter { $0.login.lowercased().contains(filter.lowercased())}
         updateData(follower: filterdFollowers)
     }
     
@@ -143,4 +149,19 @@ extension FollowersListVC: UISearchResultsUpdating, UISearchBarDelegate {
     }
     
     
+}
+
+extension FollowersListVC: UserInfoVCDelegate {
+    func didRequestFollowers(for username: String) {
+        print(username)
+        self.username   = username
+        title           = username
+        page            = 1
+        followers.removeAll()
+        filterdFollowers.removeAll()
+        collectionView.setContentOffset(.zero, animated: true) //scroll back to the Top
+        getFollowers(for: username, page: page)
+    }
+
+
 }

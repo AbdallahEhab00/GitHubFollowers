@@ -19,4 +19,13 @@ class GFRepoItemVC: GFItemInfoVC{
         itemInfoViewTwo.set(itemInfoType: .gists, withCount: user.publicGists)
         actionButton.set(backgroungColor: .systemPurple, title: "GitHub Profile")
     }
+    
+    override func didTapActionButton() {
+        guard let url = URL(string: user.htmlUrl) else {
+            presentGFAlertOnMainThread(title: "invaild HTML ,Please try again.", message: GFError.invalidUserName.rawValue, buttonTitle: "Ok")
+            return
+        }
+        presentSafariVC(url: url)
+ 
+    }
 }
